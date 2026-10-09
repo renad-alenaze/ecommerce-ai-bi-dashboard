@@ -14,3 +14,57 @@
 
 ### 🤖 Google Sheets - AI Executive Summary (Sheet 4)
 ![Google Sheets AI](screenshots/google-sheets-ai.png)
+
+
+## 🛠️ Tech Stack
+- Data Ingestion: Python (Pandas & SQLAlchemy)
+- Database: Neon PostgreSQL (Serverless Cloud Database)
+- Automation: n8n
+- AI Model: Google Gemini
+- Storage: Google Sheets
+- Visualization: Looker Studio (Google Data Studio)
+- Notifications: Telegram Bot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
