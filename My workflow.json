@@ -1,0 +1,444 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "c207971f-fa6f-41f0-ae60-b1d4ca395be6",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  CURRENT_DATE AS date,\n  \"Category\",\n  COUNT(*) AS total_orders,\n  ROUND(SUM(\"Amount\")::numeric, 2) AS total_sales,\n  ROUND(AVG(\"Amount\")::numeric, 2) AS avg_order_value\nFROM supply_chain_inventory\nGROUP BY \"Category\"\nORDER BY total_sales DESC;",
+        "options": {}
+      },
+      "id": "9e63baad-7074-4e9c-acb1-4538d97d7e9a",
+      "name": "Execute a SQL query",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        224,
+        240
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "InotJKX8zBYywMf1",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Sales data (JSON):\n{{ JSON.stringify($input.all().map(i => i.json)) }}",
+        "options": {
+          "systemMessage": "Act as a Senior Business Data Analyst. Write a professional, concise executive summary evaluating the current period's sales performance based on the provided data.\n\nRules:\n1. Length: Exactly 4 to 5 sentences (around 60-90 words). Not too short, not too long.\n2. Language: English ONLY. No Arabic text.\n3. Structure: \n   - Sentence 1: Overall performance snapshot (mention total sales or orders trend).\n   - Sentence 2: Highlight the top 2 performing categories with specific numbers.\n   - Sentence 3: Mention one key insight or underperforming area.\n   - Sentence 4: Provide a brief, actionable strategic recommendation.\n4. Formatting: Write as ONE continuous paragraph. Do NOT use bullet points, line breaks, or markdown symbols like **, #, or -."
+        }
+      },
+      "id": "513ae32f-2b21-4754-9c61-ace9b4ba36b9",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        -16
+      ],
+      "executeOnce": true,
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "id": "00921784-625e-4fa4-816c-63abfc085bc8",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        224
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KfCpLhNh5lyRLUvy",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI",
+          "mode": "list",
+          "cachedResultName": "جدول بيانات بدون عنوان",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 870365055,
+          "mode": "list",
+          "cachedResultName": "الورقة4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI/edit#gid=870365055"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $now.toFormat('yyyy-MM-dd') }}",
+            "executive_summary": "={{ $json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "executive_summary",
+              "displayName": "executive_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "f3e2817e-d163-42db-bca2-e6eab5190df7",
+      "name": "Append row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1024,
+        96
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OQClR2Omtaq5SB06",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "857875617",
+        "text": "​📊 التقرير التنفيذي الدائم المحدث: ​تم تحديث البيانات بنجاح وبناء النموذج التنبؤي للنمو. ​🔗 رابط اللوحة التفاعلية في Looker Studio: https://datastudio.google.com/reporting/375591c1-e914-4f22-a5b3-b1cfde400c4e ​ملاحظة: اللوحة محدثة تلقائياً وترتبط بقاعدة البيانات.  This message was sent automatically with n8n",
+        "additionalFields": {}
+      },
+      "id": "a020f1bd-ed7e-47f3-af4b-39ae5190e8cd",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1248,
+        96
+      ],
+      "executeOnce": true,
+      "webhookId": "52500475-438d-40a8-b407-4754ad25179f",
+      "credentials": {
+        "telegramApi": {
+          "id": "oy8xryrT1xX78IZf",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI",
+          "mode": "list",
+          "cachedResultName": "executive_reporting_system",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1207389188,
+          "mode": "list",
+          "cachedResultName": "الورقة3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI/edit#gid=1207389188"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "data": "={{ $now.toFormat('yyyy-MM-dd') }}",
+            "category": "={{ $json.Category }}",
+            "total_sales": "={{ $json.total_sales }}",
+            "avg_order_value": "={{ $json.avg_order_value }}",
+            "total_orders": "={{ $json.total_orders }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_sales",
+              "displayName": "total_sales",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "avg_order_value",
+              "displayName": "avg_order_value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_orders",
+              "displayName": "total_orders",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        800,
+        384
+      ],
+      "id": "606d850d-0bd0-453d-a85b-f6e5038242af",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RjI10hlcjO1XqZGj",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "clear",
+        "documentId": {
+          "__rl": true,
+          "value": "1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI",
+          "mode": "list",
+          "cachedResultName": "executive_reporting_system",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1207389188,
+          "mode": "list",
+          "cachedResultName": "الورقة3",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI/edit#gid=1207389188"
+        },
+        "keepFirstRow": true
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        512,
+        384
+      ],
+      "id": "070854de-caaa-4148-97e8-2bc46fdab2ee",
+      "name": "Clear sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Y4kIo8jN6Qy66UKg",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "clear",
+        "documentId": {
+          "__rl": true,
+          "value": "1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI",
+          "mode": "list",
+          "cachedResultName": "executive_reporting_system",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 870365055,
+          "mode": "list",
+          "cachedResultName": "الورقة4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ur56umSry4IQGisuqZLYeQpl3lZjGLwNHxyl4CnFozI/edit#gid=870365055"
+        },
+        "keepFirstRow": true
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        800,
+        96
+      ],
+      "id": "ba49161c-111f-450c-a9f5-d115ba05657c",
+      "name": "Clear sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "w4kptcgmzHEWI5hW",
+          "name": "Google Sheets account 4"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Clear sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Clear sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        []
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "Clear sheet": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear sheet1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fd1d5377-8580-4a40-9506-14fc25666ad7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8e4e2d987dac471c1606b3489e22fdca03d8683e244ce5985577fb6852b6ee4e"
+  },
+  "nodeGroups": [],
+  "id": "8JdW5nKvu9CQCEOk",
+  "tags": []
+}
