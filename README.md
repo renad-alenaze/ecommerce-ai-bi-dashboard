@@ -1,13 +1,16 @@
-##  Dashboard Preview
+## 📸 Project Screenshots
 
-### Looker Studio Dashboard
-![Dashboard](screenshots/dashboard-full.png)
+### 📊 Looker Studio Dashboard
+![Dashboard](screenshots/dashboard.png)
 
-### n8n Workflow
-![Workflow](screenshots/n8n-workflow.png)
+### ⚙️ n8n Automation Workflow
+![Workflow](screenshots/workflow.png)
 
-### AI Agent Configuration
-![AI Prompt](screenshots/ai-agent-prompt.png)
+### 🐍 Python Data Pipeline Script
+![Python Script](screenshots/python-script.png)
 
-### Telegram Notification
-![Telegram](screenshots/telegram-message.png)
+### 📑 Google Sheets - Sales Data (Sheet 3)
+![Google Sheets Data](screenshots/google-sheets-data.png)
+
+### 🤖 Google Sheets - AI Executive Summary (Sheet 4)
+![Google Sheets AI](screenshots/google-sheets-ai.png)
